@@ -1,0 +1,57 @@
+services:
+  http:
+    image: httpd:2.4
+    ports:
+      - '80:80'
+    volumes:
+      - ./apache/htdocs:/usr/local/apache2/htdocs
+      - ./apache/cgi-bin:/usr/local/apache2/cgi-bin
+      - ./apache/conf:/usr/local/apache2/conf
+      - ./apache/logs:/usr/local/apache2/logs
+    # restart: always -- To start it or run it as a service
+    # restart: no
+    networks:
+      - backend
+
+  db:
+    image: mysql:8.1
+    volumes:
+      - type: bind
+        source: ./mysql
+        target: /var/lib/mysql
+    # restart: always -- To start it or run it as a service
+    # restart: no
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: somegolang
+      MYSQL_DATABASE: golang
+      MYSQL_USER: golang
+      MYSQL_PASSWORD: golang
+    networks:
+      - backend
+
+  go:
+    depends_on:
+      - db
+    build: ./go
+    volumes:
+      - type: bind
+        source: ./go
+        target: /opt/go
+    ports:
+      - "8882:8881"
+    # restart: always -- To start up it or run it as a service 
+    # restart: no
+    environment:
+      GO_DB_HOST: db:3306
+      GO_DB_USER: golang
+      GO_DB_PASSWORD: golang
+    tty: true
+    networks:
+      - backend
+
+networks:
+  backend:
+    name: go-sample-todo-network
+    external: true
