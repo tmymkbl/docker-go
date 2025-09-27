@@ -47,6 +47,7 @@ services:
       GO_DB_HOST: db:3306
       GO_DB_USER: golang
       GO_DB_PASSWORD: golang
+      APP_PATH: /opt/go
     tty: true
     networks:
       - backend
